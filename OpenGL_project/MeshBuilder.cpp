@@ -113,7 +113,6 @@ void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, Chunk** neighb
                         {x, Chunk::side - 1, z},
                         {x, z, Chunk::side - 1}
                     };
-
                     ivec3 directions[6] =
                     {
                         {y, x, z},
@@ -126,7 +125,7 @@ void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, Chunk** neighb
 
                     layerInfo[z * Chunk::side + x] = data[Chunk::dataIndex(directions[s])] > 0;
                     if(layerInfo[z * Chunk::side + x]>0)
-                        if (y > 0 && y + 1 < Chunk::side)
+                        if (y != (s<3? Chunk::side-1 : 0))
                         {
                             if (data[Chunk::dataIndex(advDirections[s]+directions[s])] > 0)
                                 layerInfo[z * Chunk::side + x] = -1;
@@ -193,6 +192,7 @@ void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, Chunk** neighb
                             testV[i].posZ = dv[s].z;
                         }
                         vertexpool->placeData(chunk->getMeshID() * 6 + s, testV, sizeof(Vertex) * 6);
+                        delete[] testV;
                     }
                     if (borders.x < Chunk::side)
                         startingVertices.push_back({ borders.x, start.y });

@@ -49,19 +49,23 @@ float vertices[] =
 
 Game::Game()
 {
-    shader = Shader("pbrShaderVert.glsl", "pbrShaderFrag.glsl");
+    shader = Shader("pbrShaderVert.glsl", "pbrShaderGeom.glsl", "pbrShaderFrag.glsl");
     glDepthMask(GL_TRUE);
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
+
+    uint32_t cr = 3;
+    uint32_t meshSizeLimit = 60000;
+
     albedo = Texture("textures/texture.png", true);
     albedo = Texture("textures/brick/albedo.png", true);
     normal = Texture("textures/brick/normal.png", true);
     metallic = Texture("textures/brick/metallic.png", true);
     roughness = Texture("textures/brick/roughness.png", true);
     ambientOccluison = Texture("textures/brick/AO.png", true);
-    vertexpool = new Vertexpool(162, 132000/2, { {3, GL_INT, sizeof(int)}});
+    vertexpool = new Vertexpool(6*cr*cr*cr, meshSizeLimit, { {3, GL_INT, sizeof(int)}});
     vertexpool->setPortionAttributes({ {1, GL_INT, sizeof(int)}, {3, GL_INT, sizeof(int)} });
     skybox = Skybox("textures/skybox");
     camera.translateAbs(glm::vec3(0, 0, -3));
@@ -69,7 +73,7 @@ Game::Game()
     gameTime = 0;
     movementInput = vec3(0);
     rotationInput = vec2(0);
-    chunkholder = new ChunkHolder(3, vec3(0), vertexpool);
+    chunkholder = new ChunkHolder(cr, vec3(0), vertexpool);
     vertexpool->update();
     //WorldGenerator::fillChunk(&chunk);
     //MeshBuilder::buildMesh(vertexpool, &chunk);

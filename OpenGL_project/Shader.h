@@ -19,6 +19,7 @@ public:
     //glBufferStorage
     Shader();
     Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+    Shader(const GLchar* vertexPath, const GLchar* geometryPath, const GLchar* fragmentPath);
     void use();
     GLuint getUniformLocation(const GLchar* name);
     void setMat4(glm::mat4 m, std::string name);

@@ -86,6 +86,9 @@
     <None Include="defaultShaderVert.glsl">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="pbrShaderGeom.glsl">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

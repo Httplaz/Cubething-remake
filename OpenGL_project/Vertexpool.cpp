@@ -1,9 +1,9 @@
 #include "Vertexpool.h"
 
 
-size_t getAttributePackSize(vector<Attribute>::iterator begin, vector<Attribute>::iterator end)
+dataSize_t getAttributePackSize(vector<Attribute>::iterator begin, vector<Attribute>::iterator end)
 {
-	size_t size = 0;
+	dataSize_t size = 0;
 	while (begin != end)
 	{
 		size += (*begin).typeSize*(*begin).positionCount;
@@ -25,10 +25,20 @@ freePortions(), vertexSize(getAttributePackSize(attributes.begin(), attributes.e
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &meshesDataBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+
+
+	cout << vertexSize;
+
 	const GLbitfield flag = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 	glBufferStorage(GL_ARRAY_BUFFER, portionCount * portionVertexSize * vertexSize, NULL, flag);
 	vertexBufferData = glMapBufferRange(GL_ARRAY_BUFFER, 0, portionCount * portionVertexSize * vertexSize, flag);
-	size_t attribOffset = 0;
+	memset(vertexBufferData, 0, portionCount * portionVertexSize * vertexSize);
+
+
+
+
+	dataSize_t attribOffset = 0;
 	for (int i = 0; i < attributes.size(); i++)
 	{
 		glVertexAttribPointer(i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, vertexSize, (void*)attribOffset);
@@ -55,7 +65,7 @@ void Vertexpool::setPortionAttributes(vector<Attribute> attributes)
 	const GLbitfield flag = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 	glBufferStorage(GL_ARRAY_BUFFER, portionCount * attribPackSize, NULL, flag);
 	portionAttribBufferData = glMapBufferRange(GL_ARRAY_BUFFER, 0, portionCount  * attribPackSize, flag);
-	size_t attribOffset = 0;
+	dataSize_t attribOffset = 0;
 	for (int i = 0; i < attributes.size(); i++)
 	{
 		glVertexAttribPointer(vertexAttributesCount+i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, attribPackSize, (void*)attribOffset);
@@ -97,7 +107,7 @@ bool Vertexpool::meshPortion(const uint32_t key, void* data, bool enable)
 {
 	if (freePortions.size() == 0)
 		return false;
-	size_t bufferOffset = freePortions.front();
+	dataSize_t bufferOffset = freePortions.front();
 	//clearPortion(bufferOffset);
 	memcpy((char*)vertexBufferData+bufferOffset, (char*)data, portionVertexSize * vertexSize);
 	meshedPortions.insert({ key,{ {portionVertexSize, 1, bufferOffset / vertexSize, key }, false } });
@@ -114,7 +124,7 @@ bool Vertexpool::startPortionMeshing(const uint32_t group)
 	uint32_t meshingOffset = freePortions.front();
 	freePortions.pop_front();
 	clearPortion(meshingOffset);
-	size_t portionFill = 0;
+	dataSize_t portionFill = 0;
 	meshingProcess.insert({ group, { meshingOffset, portionFill, portionFill } });
 }
 
@@ -123,7 +133,7 @@ bool Vertexpool::placeVertex(const uint32_t group, const void* data)
 	return placeData(group, data, vertexSize);
 }
 
-bool Vertexpool::placeData(const uint32_t group, const void* data, size_t size)
+bool Vertexpool::placeData(const uint32_t group, const void* data, dataSize_t size)
 {
 	auto p = meshingProcess.find(group);
 	if (p->second.dataPortionFillOffset + size > portionVertexSize * vertexSize)
@@ -133,7 +143,7 @@ bool Vertexpool::placeData(const uint32_t group, const void* data, size_t size)
 	return true;
 }
 
-bool Vertexpool::placeAttribs(const uint32_t group, const void* data, size_t size)
+bool Vertexpool::placeAttribs(const uint32_t group, const void* data, dataSize_t size)
 {
 
 	auto p = meshingProcess.find(group);
@@ -168,7 +178,7 @@ void Vertexpool::unmeshPortion(const uint32_t key)
 
 	auto p = meshedPortions.find(key);
 	disableMesh(key, p);
-	size_t bufferOffset = p->second.first.beginFrom/portionVertexSize;
+	dataSize_t bufferOffset = p->second.first.beginFrom/portionVertexSize;
 	freePortions.push_back(bufferOffset);
 	meshedPortions.erase(p);
 }

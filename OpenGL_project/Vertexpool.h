@@ -10,11 +10,13 @@
 #include "Camera.h"
 using namespace std;
 
+typedef uint32_t dataSize_t;
+
 struct DrawCommand 
 {
 	uint32_t verticesCount;
 	uint32_t instanceCount;
-	size_t beginFrom;
+	dataSize_t beginFrom;
 	uint32_t group; //=baseInstance
 	vec3 pos;
 };
@@ -23,22 +25,22 @@ struct Attribute
 {
 	uint32_t positionCount;
 	uint32_t glType;
-	size_t typeSize;
+	dataSize_t typeSize;
 };
 
 struct MeshAttribute
 {
 	uint32_t positionCount;
 	uint32_t glType;
-	size_t typeSize;
+	dataSize_t typeSize;
 };
 
 
 struct MeshingProcessInfo
 {
 	uint32_t meshingPortionOffset;
-	size_t dataPortionFillOffset;
-	size_t attribPortionFillOffset;
+	dataSize_t dataPortionFillOffset;
+	dataSize_t attribPortionFillOffset;
 };
 
 
@@ -54,8 +56,8 @@ public:
 	bool meshPortion(const uint32_t group, void* data);
 	bool startPortionMeshing(const uint32_t group);
 	bool placeVertex(const uint32_t group, const void* data);
-	bool placeData(const uint32_t group, const void* data, size_t size);
-	bool placeAttribs(const uint32_t group, const void* data, size_t size);
+	bool placeData(const uint32_t group, const void* data, dataSize_t size);
+	bool placeAttribs(const uint32_t group, const void* data, dataSize_t size);
 	void endPortionMeshing(const uint32_t group, bool enable);
 	void endPortionMeshing(const uint32_t group);
 	void unmeshPortion(const uint32_t group);
@@ -73,8 +75,8 @@ private:
 	map<uint32_t, MeshingProcessInfo > meshingProcess;
 	deque<uint32_t> freePortions;
 	const uint32_t portionVertexSize, portionCount;
-	const size_t vertexSize;
-	size_t attribPackSize;
+	const dataSize_t vertexSize;
+	dataSize_t attribPackSize;
 	uint32_t VAO, VBO, IBO, meshesDataBO;
 	shared_ptr<Shader> shaderProgram;
 	uint32_t drawMode;

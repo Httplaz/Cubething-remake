@@ -3,9 +3,9 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in float aSide;
 layout (location = 2) in vec3 chunkPos;
 
-out vec2 TexCoords;
-out vec3 WorldPos;
-out mat3 TBN;
+out vec2 TexCoords0;
+out vec3 WorldPos0;
+out mat3 TBN0;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -26,26 +26,26 @@ void main()
     switch(side)
     {
         case 0:
-            TexCoords = (worldPos.zy);
+            TexCoords0 = (worldPos.zy);
             break;
         case 1:
-            TexCoords = (worldPos.xz);
+            TexCoords0 = (worldPos.xz);
             break;
         case 2:
-            TexCoords = (worldPos.xy);
+            TexCoords0 = (worldPos.xy);
             break;
         case 3:
-            TexCoords = (worldPos.zy);
+            TexCoords0 = (worldPos.zy);
             break;
         case 4:
-            TexCoords = (worldPos.xz);
+            TexCoords0 = (worldPos.xz);
             break;
         case 5:
-            TexCoords = (worldPos.xy);
+            TexCoords0 = (worldPos.xy);
             break;
     }
 
-    WorldPos = worldPos;
-    TBN = mat3(tangent[side], bitangent[side], normal[side]);
-    gl_Position = projection * view * vec4(WorldPos, 1.0);
+    WorldPos0 = worldPos;
+    TBN0 = mat3(tangent[side], bitangent[side], normal[side]);
+    gl_Position = projection * view * vec4(WorldPos0, 1.0);
 }

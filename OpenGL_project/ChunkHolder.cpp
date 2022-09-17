@@ -2,16 +2,25 @@
 
 ivec3 ChunkHolder::update(vec3 loaderPos)
 {
-    ivec3 newOffset = (loaderPos) / float(Chunk::side);
+    ivec3 delta = (ivec3(Chunk::side * loadCubeSide / 2) - (ivec3)loaderPos) / int32_t(Chunk::side);
+    delta.y = 0;
+    if (delta != ivec3(0))
+    {
+        chunkRing.shift(delta);
+        return ivec3(delta*int32_t(Chunk::side));
+    }
+    else
+        return ivec3(0);
+    /*ivec3 newOffset = distance(loaderPos, vec3(Chunk::side * loadCubeSide / 2)) > Chunk::side * loadCubeSide / 2 ? ivec3((loaderPos) / float(Chunk::side)) : ivec3(chunkOffset);
     if (newOffset != chunkOffset)
     {
         cout << newOffset.x << " " << newOffset.y << " " << newOffset.z << "\n";
         ivec3 delta = newOffset - chunkOffset;
-        chunkRing.shift(delta);
+        chunkRing.shift(-delta);
         chunkOffset = newOffset;
-        //return -delta * int32_t(Chunk::side);
+        return -delta * int32_t(Chunk::side);
     }
-    return ivec3(0);
+    return ivec3(0);*/
 }
 
 ChunkHolder::ChunkHolder(const unsigned loadCubeSide, vec3 loaderPos, Vertexpool* pool) : loadCubeSide(loadCubeSide), loadCubeArea(loadCubeSide* loadCubeSide), loadCubeVolume(loadCubeArea* loadCubeSide), chunkOffset(loaderPos / vec3(Chunk::side)), vertexpool(pool), chunkBox(prepareChunkArray(), loadCubeSide, loadCubeSide, loadCubeSide), chunkRing(loadCubeSide)
