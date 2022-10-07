@@ -6,7 +6,19 @@ class MeshBuilder
 {
 	struct Vertex
 	{
-		int posX, posY, posZ;
+		uint32_t posX, posY, posZ;
+		uint32_t lengthX, lengthZ;
+		uint32_t texID;
+		//uint8_t AO;
+		//int posX1, posY1, posZ1;
+		//int posX2, posY2, posZ2;
+		//int posX3, posY3, posZ3;
+	};
+	struct CompactVertex
+	{
+		uint32_t rectData;
+		uint32_t texID;
+		//uint8_t AO;
 	};
 	struct MeshAttribPack
 	{

@@ -11,6 +11,7 @@
 #include "WorldGenerator.h"
 #include "MeshBuilder.h"
 #include "ChunkHolder.h"
+#include "ResourseManager.h"
 
 using namespace std;
 using namespace glm;
@@ -33,12 +34,13 @@ private:
 	Texture metallic;
 	Texture roughness;
 	Texture ambientOccluison;
+	Texture depth;
 	Camera camera;
 	Vertexpool* vertexpool;
 	ChunkHolder* chunkholder;
 	Skybox skybox;
 	mat4 model;
-	float gameTime;
+	int gameTime;
 
 	vec3 movementInput;
 	vec2 rotationInput;

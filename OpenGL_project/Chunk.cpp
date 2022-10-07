@@ -11,7 +11,12 @@ uint32_t Chunk::dataIndex(uvec3 pos)
 	return dataIndex(pos.x, pos.y, pos.z);
 }
 
-Chunk::Chunk(uint32_t id, ivec3 position): data(new uint8_t[volume]), meshID(id), position(position)
+uint32_t Chunk::dataIndex(uvec3Ref pos)
+{
+	return dataIndex(*pos.x, *pos.y, *pos.z);
+}
+
+Chunk::Chunk(uint32_t id, ivec3 position, ivec3 worldPosition): data(new uint8_t[volume]), meshID(id), position(position), worldPosition(worldPosition)
 {
 	for (int i = 0; i < 6; i++)
 		neighbors[i] = nullptr;
@@ -36,6 +41,11 @@ uint32_t Chunk::getMeshID()
 ivec3 Chunk::getPosition()
 {
 	return position;
+}
+
+ivec3 Chunk::getWorldPosition()
+{
+	return worldPosition;
 }
 
 Chunk** Chunk::getNeighbors()

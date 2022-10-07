@@ -26,6 +26,7 @@ struct Attribute
 	uint32_t positionCount;
 	uint32_t glType;
 	dataSize_t typeSize;
+	bool floatingPoint;
 };
 
 struct MeshAttribute
@@ -64,7 +65,7 @@ public:
 	void enableMesh(const uint32_t group);
 	void disableMesh(const uint32_t group);
 	void cullFaceMask(uint32_t groupCount, vec3* groupNormales, vec3 camDirection, mat4 view);
-private:
+//private:
 	bool inFrustrum(mat4 view, vec3 a, vec3 b);
 	bool seen(vec3 camDirection, vec3 normale);
 	void disableMesh(const uint32_t key, map<uint32_t, pair < DrawCommand, bool> > ::iterator p);

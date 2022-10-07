@@ -17,7 +17,7 @@ portionCount(portionCount), portionVertexSize(portionVertexSize), drawCommands()
 freePortions(), vertexSize(getAttributePackSize(attributes.begin(), attributes.end()))
 {
 	drawMode = GL_TRIANGLES;
-	//drawMode = GL_LINE_STRIP;
+	drawMode = GL_POINTS;
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glGenBuffers(1, &IBO);
 	glGenVertexArrays(1, &VAO);
@@ -41,7 +41,10 @@ freePortions(), vertexSize(getAttributePackSize(attributes.begin(), attributes.e
 	dataSize_t attribOffset = 0;
 	for (int i = 0; i < attributes.size(); i++)
 	{
-		glVertexAttribPointer(i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, vertexSize, (void*)attribOffset);
+		if(attributes[i].floatingPoint)
+			glVertexAttribPointer(i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, vertexSize, (void*)attribOffset);
+		else
+			glVertexAttribIPointer(i, attributes[i].positionCount, attributes[i].glType, vertexSize, (void*)attribOffset);
 	    glEnableVertexAttribArray(i);
 		attribOffset += attributes[i].positionCount * attributes[i].typeSize;
 	}
@@ -68,7 +71,12 @@ void Vertexpool::setPortionAttributes(vector<Attribute> attributes)
 	dataSize_t attribOffset = 0;
 	for (int i = 0; i < attributes.size(); i++)
 	{
-		glVertexAttribPointer(vertexAttributesCount+i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, attribPackSize, (void*)attribOffset);
+		if (attributes[i].floatingPoint)
+			glVertexAttribPointer(vertexAttributesCount + i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, attribPackSize, (void*)attribOffset);
+		else
+			glVertexAttribIPointer(vertexAttributesCount + i, attributes[i].positionCount, attributes[i].glType, attribPackSize, (void*)attribOffset);
+
+		//glVertexAttribPointer(vertexAttributesCount+i, attributes[i].positionCount, attributes[i].glType, GL_FALSE, attribPackSize, (void*)attribOffset);
 		glVertexAttribDivisor(vertexAttributesCount + i, 1);
 		glEnableVertexAttribArray(vertexAttributesCount + i);
 		attribOffset += attributes[i].positionCount * attributes[i].typeSize;
@@ -160,6 +168,7 @@ void Vertexpool::endPortionMeshing(const uint32_t group, bool enable)
 	meshedPortions.insert({ group, {{ p->second.dataPortionFillOffset/vertexSize, 1, p->second.meshingPortionOffset * portionVertexSize, group}, false} });
 	if (enable)
 		enableMesh(group);
+	meshingProcess.erase(p);
 }
 
 void Vertexpool::endPortionMeshing(const uint32_t group)
@@ -177,7 +186,10 @@ void Vertexpool::unmeshPortion(const uint32_t key)
 	//cout << "\n\n\n";
 
 	auto p = meshedPortions.find(key);
+	//cout << "disabling now: " << key << "\n";
 	disableMesh(key, p);
+	//cout << "new vector size: " << drawCommands.size() << "\n";
+	maskedDrawCommandCount = drawCommands.size();
 	dataSize_t bufferOffset = p->second.first.beginFrom/portionVertexSize;
 	freePortions.push_back(bufferOffset);
 	meshedPortions.erase(p);

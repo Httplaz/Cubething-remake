@@ -83,6 +83,7 @@ void render()
         double frameRenderTime = currentRenderTime - latestFrameRenderTime;
         if (frameRenderTime >= frameRenderDuration) 
         {
+
             game->render();
             glfwPollEvents();
             glfwSwapBuffers(window);
@@ -90,6 +91,13 @@ void render()
             tp++;
             string displayString = "FPS: " + to_string(1. / frameRenderTime);
             glfwSetWindowTitle(window, displayString.c_str());
+            //dvec2 a;
+            //glfwGetCursorPos(window, &(a.x), &a.y);
+            //if (!firstMouse)
+                //game->setRotationInput((dvec2(a.x - cursorPos.x, cursorPos.y - a.y)) / 10.);
+            //cursorPos = a;
+            //firstMouse = false;
+            //game->update();
             //if (tp % 100 == 0)
                 //cout << displayString << "\n";// 1. / (t2 - t1) << "\n";
            if (frameRenderTime < frameRenderDuration)
@@ -101,7 +109,9 @@ void render()
 
 int main()
 { 
+    cout << "START\n";
     glfwInit();
+    cout << "gldwfsf";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -114,6 +124,7 @@ int main()
     width = mode->width;
     height = mode->height;
     screenResulution = ivec2(width, height);
+    cout << "creating window\n";
     window = glfwCreateWindow(width / 2, height / 2, "RicardoGameTezt", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
@@ -123,7 +134,9 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
 
+    cout << "game constructor\n";
     game = new Game();
+    cout << "game ready\n";
     game->updateAspectRatio(float(width) / float(height));
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwGetCursorPos(window, &(cursorPos.y), &cursorPos.x);

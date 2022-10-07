@@ -6,6 +6,18 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
+
+struct uvec3Ref
+{
+	uint32_t* x;
+	uint32_t* y;
+	uint32_t* z;
+	ivec3 toIvec3()
+	{
+		return { uint32_t(*x), uint32_t(*y), uint32_t(*z) };
+	}
+};
+
 class Chunk
 { 
 public:
@@ -14,11 +26,13 @@ public:
 	static const uint32_t volume = side * side * side;
 	static uint32_t dataIndex(uint32_t x, uint32_t y, uint32_t z);
 	static uint32_t dataIndex(uvec3 pos);
-	Chunk(uint32_t id, ivec3 position);
+	static uint32_t dataIndex(uvec3Ref pos);
+	Chunk(uint32_t id, ivec3 position, ivec3 worldPosition);
 	//~Chunk();
 	uint8_t* getData();
 	uint32_t getMeshID();
 	ivec3 getPosition();
+	ivec3 getWorldPosition();
 	Chunk** getNeighbors();
 	void setNeighbor(int side, Chunk* neighbor);
  private:
@@ -26,5 +40,6 @@ public:
 	Chunk* neighbors[6];
 	uint32_t meshID;
 	ivec3 position;
+	ivec3 worldPosition;
 };
 
