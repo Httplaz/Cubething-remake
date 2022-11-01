@@ -136,6 +136,17 @@ bool Vertexpool::startPortionMeshing(const uint32_t group)
 	meshingProcess.insert({ group, { meshingOffset, portionFill, portionFill } });
 }
 
+bool Vertexpool::restartPortionMeshing(const uint32_t group)
+{
+	auto p = meshedPortions.find(group);
+	disableMesh(group, p);
+	maskedDrawCommandCount = drawCommands.size();
+	uint32_t meshingOffset = p->second.first.beginFrom / portionVertexSize;
+	meshedPortions.erase(p);
+	dataSize_t portionFill = 0;
+	meshingProcess.insert({ group, { meshingOffset, portionFill, portionFill } });
+}
+
 bool Vertexpool::placeVertex(const uint32_t group, const void* data)
 {
 	return placeData(group, data, vertexSize);
@@ -165,7 +176,7 @@ bool Vertexpool::placeAttribs(const uint32_t group, const void* data, dataSize_t
 void Vertexpool::endPortionMeshing(const uint32_t group, bool enable)
 {
 	auto p = meshingProcess.find(group);
-	meshedPortions.insert({ group, {{ p->second.dataPortionFillOffset/vertexSize, 1, p->second.meshingPortionOffset * portionVertexSize, group}, false} });
+	meshedPortions.insert({ group, {{ p->second.dataPortionFillOffset/vertexSize, 1, p->second.meshingPortionOffset * portionVertexSize, p->second.meshingPortionOffset}, false} });
 	if (enable)
 		enableMesh(group);
 	meshingProcess.erase(p);
@@ -178,17 +189,8 @@ void Vertexpool::endPortionMeshing(const uint32_t group)
 
 void Vertexpool::unmeshPortion(const uint32_t key)
 {
-	//cout << "\n\n\n";
-
-	//for (auto it = meshedPortions.begin(); it != meshedPortions.end(); it++)
-		//cout << it->first << "\n";
-
-	//cout << "\n\n\n";
-
 	auto p = meshedPortions.find(key);
-	//cout << "disabling now: " << key << "\n";
 	disableMesh(key, p);
-	//cout << "new vector size: " << drawCommands.size() << "\n";
 	maskedDrawCommandCount = drawCommands.size();
 	dataSize_t bufferOffset = p->second.first.beginFrom/portionVertexSize;
 	freePortions.push_back(bufferOffset);

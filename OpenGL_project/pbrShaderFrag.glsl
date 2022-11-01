@@ -6,6 +6,7 @@ in vec3 WorldPos;
 in mat3 TBN;
 in flat int side1;
 in flat int texID;
+in float blockAO;
 
 vec3 tangent = TBN[0], bitangent = TBN[1], normal = TBN[2];
 
@@ -192,12 +193,13 @@ void main()
     ndotv = lodAngleCoeff(V, TBN[2]);
     vec2 atlasOffset = vec2(texID%int(tileAtlasSize), texID/int(tileAtlasSize));
     vec2 texCoords = fract(TexCoords)+atlasOffset;//vec2(fract(TexCoords.x), TexCoords.y);
-    texCoords = (length(MV)<4.) ? fract(parallax((texCoords), -V, TBN[2]))+atlasOffset : texCoords;
+    //texCoords = (length(MV)<4.) ? fract(parallax((texCoords), -V, TBN[2]))+atlasOffset : texCoords;
     //texCoords = fract((parallax(texCoords, -V, TBN[2])));
     //while(texCoords.x>1.)
         //texCoords.y = clamp(texCoords.y, 0., 1.);
     //while(texCoords.y>1.)
       //  texCoords.y-=1.;
+    float blockAO12 = 1.-blockAO/5.;
     albedo = ntexture(albedoMetallicMap, texCoords/tileAtlasSize).rgb;
     metallic = ntexture(albedoMetallicMap, texCoords/tileAtlasSize).a;
     roughness = ntexture(normalRoughnessMap, texCoords/tileAtlasSize).a;
@@ -243,9 +245,11 @@ void main()
     //ao = 0.0;
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
+    color*=(1.-blockAO);
 	
     color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0/2.2));  
+    color = pow(color, vec3(1.0/2.2));
+    //color = vec3(1./4.*blockAO);
     //color.r = ndotv;
     //color.xyz = color.rrr;
     //color.xyz = (Normal + vec3(1.))/2;

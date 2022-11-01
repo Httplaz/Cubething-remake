@@ -91,15 +91,18 @@ void render()
             tp++;
             string displayString = "FPS: " + to_string(1. / frameRenderTime);
             glfwSetWindowTitle(window, displayString.c_str());
-            //dvec2 a;
-            //glfwGetCursorPos(window, &(a.x), &a.y);
-            //if (!firstMouse)
-                //game->setRotationInput((dvec2(a.x - cursorPos.x, cursorPos.y - a.y)) / 10.);
-            //cursorPos = a;
-            //firstMouse = false;
-            //game->update();
-            //if (tp % 100 == 0)
-                //cout << displayString << "\n";// 1. / (t2 - t1) << "\n";
+           
+
+            dvec2 a;
+            glfwGetCursorPos(window, &(a.x), &a.y);
+            if (!firstMouse)
+                game->setRotationInput((dvec2(a.x - cursorPos.x, cursorPos.y - a.y)) / 10.);
+            cursorPos = a;
+            firstMouse = false;
+            game->update();
+
+
+
            if (frameRenderTime < frameRenderDuration)
                 this_thread::sleep_for(chrono::milliseconds(int((frameRenderDuration-frameRenderTime-bias)*1000.)));
         }
@@ -145,8 +148,8 @@ int main()
     //glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::cout << "Hello World!\n";
-    thread thr(update);
-    thr.detach();
+    //thread thr(update);
+    //thr.detach();
     render();
 
     glfwTerminate();
@@ -213,6 +216,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             game->addRotationInput(vec2(0, -1));
         if (key == GLFW_KEY_DOWN)
             game->addRotationInput(vec2(0, 1));
+        //if (key == GLFW_KEY_X)
+            //game->chunkholder->chunkRing.shift({ 1,0,0 });
 
         if (key == GLFW_KEY_F)
         {

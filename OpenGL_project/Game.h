@@ -27,6 +27,7 @@ public:
 	void setRotationInput(vec2 input);
 	void addMovementInput(vec3 input);
 	void addRotationInput(vec2 input);
+	void terminate();
 private:
 	Shader shader;
 	Texture albedo;

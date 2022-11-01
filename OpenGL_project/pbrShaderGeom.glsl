@@ -13,6 +13,7 @@ in ivec3 WorldPos0[];
 in ivec2 Length[];
 in int side[];
 in int texID1[];
+in int blockAO1[];
 
 
 uniform mat4 transform;
@@ -22,6 +23,21 @@ out vec3 WorldPos;
 out mat3 TBN;
 out flat int side1;
 out flat int texID;
+out float blockAO;
+
+float calcAO(int side1, int side2, int corner)
+{
+    if(side1>0 && side2>0)
+        return 1.;
+    else
+        return (side1+side2+corner)/3.;
+
+}
+
+int getAO(int neighbor)
+{
+    return ((blockAO1[0] >> neighbor) & 1);
+}
 
 void copyVertex(ivec3 position, ivec3 local)
 {    
@@ -40,10 +56,35 @@ void main()
    TBN = mat3(tangent[side[0]], bitangent[side[0]], normal[side[0]]);
    ivec3 deltaRight = tangent[side[0]] * Length[0].x;
    ivec3 deltaUp = bitangent[side[0]] * Length[0].y;
-   copyVertex((WorldPos0[0]+deltaRight+deltaUp), deltaRight+deltaUp);
-   copyVertex((WorldPos0[0]+deltaUp), deltaUp);
-   copyVertex((WorldPos0[0]+deltaRight), deltaRight);
+   float vertexAO[4] = 
+   {
+        calcAO(getAO(2), getAO(4), getAO(3)),
+        calcAO(getAO(4), getAO(6), getAO(5)),
+        calcAO(getAO(6), getAO(0), getAO(7)),
+        calcAO(getAO(0), getAO(2), getAO(1))
+   };
 
-   copyVertex(WorldPos0[0], ivec3(0));
+   if(vertexAO[0]+vertexAO[2]>vertexAO[1]+vertexAO[3])
+   {
+        blockAO = vertexAO[0];
+        copyVertex(WorldPos0[0], ivec3(0));
+        blockAO = vertexAO[3];
+        copyVertex((WorldPos0[0]+deltaRight), deltaRight);
+        blockAO = vertexAO[1];
+        copyVertex((WorldPos0[0]+deltaUp), deltaUp);
+        blockAO = vertexAO[2];
+        copyVertex((WorldPos0[0]+deltaRight+deltaUp), deltaRight+deltaUp);
+   }
+   else
+   {  
+        blockAO = vertexAO[1];
+        copyVertex((WorldPos0[0]+deltaUp), deltaUp);
+        blockAO = vertexAO[0];
+        copyVertex(WorldPos0[0], ivec3(0));
+        blockAO = vertexAO[2];
+        copyVertex((WorldPos0[0]+deltaRight+deltaUp), deltaRight+deltaUp);
+        blockAO = vertexAO[3];
+        copyVertex((WorldPos0[0]+deltaRight), deltaRight);
+   }
    EndPrimitive();
 }  

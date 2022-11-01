@@ -57,14 +57,11 @@ Game::Game()
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
-    uint32_t cr = 5;
+    ivec3 cr = { 10, 2, 10 };
     uint32_t meshSizeLimit = 30000;
 
     ResourseManager::configure(1024, 10, { {3, "albedo"}, {1, "metallic"}, {3, "normal"},
         {1, "roughness"}, {1, "height"}, {1, "AO"} });
-
-    //ResourseManager::loadTile("textures/brick");
-    //ResourseManager::atlasProcess->finishTile();
     ResourseManager::loadTile("textures/brick");
     ResourseManager::atlasProcess->finishTile();
     ResourseManager::loadTile("textures/blueBrick");
@@ -73,42 +70,22 @@ Game::Game()
     ResourseManager::atlasProcess->finishTile();
     ResourseManager::loadTile("textures/orangeBrick");
     ResourseManager::atlasProcess->finishTile();
-    //ResourseManager::loadTile("textures/wood");
-    //ResourseManager::atlasProcess->finishTile();
-    /*ResourseManager::loadTile("textures/ceramic");
-    ResourseManager::atlasProcess->finishTile();
-    ResourseManager::loadTile("textures/wood");
-    ResourseManager::atlasProcess->finishTile();
-    ResourseManager::loadTile("textures/hexWall");
-    ResourseManager::atlasProcess->finishTile();
-    ResourseManager::loadTile("textures/grass");
-    ResourseManager::atlasProcess->finishTile();*/
     cout << "befor load finish\n";
     ResourseManager::finishLoading();
 
-    //albedo = Texture("textures/texture.png", true);
-    //albedo = Texture("textures/brick/albedo.png", true);
-    //normal = Texture("textures/brick/normal.png", true);
-    //metallic = Texture("textures/brick/metallic.png", true);
-    //roughness = Texture("textures/brick/roughness.png", true);
-    //ambientOccluison = Texture("textures/brick/AO.png", true);
-    //depth = Texture("textures/brick/height.png", true);
     cout << "before vp\n";
-    vertexpool = new Vertexpool(6 * cr * cr * cr, meshSizeLimit, { {1, GL_INT, sizeof(int), 0}, {1, GL_INT, sizeof(int), false} });
+    vertexpool = new Vertexpool(6 * cr.x * cr.y * cr.z, meshSizeLimit, { {1, GL_INT, sizeof(int), false}, {1, GL_INT, sizeof(int), false}, {1, GL_INT, sizeof(int), false} });
     cout << "after vp\n";
     vertexpool->setPortionAttributes({ {1, GL_INT, sizeof(int), 0}, {3, GL_INT, sizeof(int), 0} });
     skybox = Skybox("textures/skybox");
-    camera.translateAbs(glm::vec3(0, 0, -3));
+    camera.translateAbs(cr*Chunk::side/2);
+    camera.rotateAbs(0., { 0.,1., 0. });
     model = mat4(1.f);
     gameTime = 0;
     movementInput = vec3(0);
     rotationInput = vec2(0);
     chunkholder = new ChunkHolder(cr, vec3(0), vertexpool);
     vertexpool->update();
-    //WorldGenerator::fillChunk(&chunk);
-    //MeshBuilder::buildMesh(vertexpool, &chunk);
-    //vertexpool->update();
-
 }
 
 void Game::render()
@@ -119,18 +96,13 @@ void Game::render()
     skybox.render(scale(camera.getView(), vec3(-1, -1, 1)), camera.getProjection());
     shader.setMat4(camera.getProjection()*camera.getView() * scale(mat4(1.f), vec3(-1, -1, 1)), "transform");
     shader.setVec3(camera.getPosition(), "camPos");
-    shader.setIvec4(ivec4(chunkholder->getChunkOffset(), chunkholder->loadCubeSide), "offsetInfo");
+    shader.setIvec3(chunkholder->getChunkOffset(), "loadOffset");
+    shader.setIvec3(chunkholder->loadSide, "loadSide");
     shader.setInt(1, "p");
     shader.setFloat((float)ResourseManager::pixelAtlasSize/(float)ResourseManager::tileSize, "tileAtlasSize");
     shader.setInt(0, "albedoMetallicMap");
     shader.setInt(1, "normalRoughnessMap");
     shader.setInt(2, "heightAmbientOcclusionMap");
-    //shader.setInt(0, "albedoMap");
-    //shader.setInt(1, "normalMap");
-    //shader.setInt(2, "metallicMap");
-    //shader.setInt(3, "roughnessMap");
-    //shader.setInt(4, "AOMap");
-    //shader.setInt(5, "heightMap");
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ResourseManager::atlases[0]);
@@ -140,18 +112,6 @@ void Game::render()
     glBindTexture(GL_TEXTURE_2D, ResourseManager::atlases[2]);
 
     vertexpool->setShaderprogram(make_shared<Shader>(shader));
-    /*glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, albedo.getTexture());
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, normal.getTexture());
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, metallic.getTexture());
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, roughness.getTexture());
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, ambientOccluison.getTexture());
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, depth.getTexture());*/
     vertexpool->update();
     vertexpool->render();
 }
@@ -176,7 +136,7 @@ void Game::update()
     if(rotationInput.x!=0)
        camera.rotateAbs(rotationInput.x, vec3(0.f, 1.f, 0.f)); 
     if (movementInput.length > 0)
-        camera.translateRel(movementInput*0.4f);
+        camera.translateRel(movementInput*2.f);
 }
 
 void Game::updateAspectRatio(float ratio)
@@ -202,5 +162,9 @@ void Game::addMovementInput(vec3 input)
 void Game::addRotationInput(vec2 input)
 {
     rotationInput += input;
+}
+
+void Game::terminate()
+{
 }
 

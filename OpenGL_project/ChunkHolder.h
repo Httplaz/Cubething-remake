@@ -7,6 +7,7 @@
 #include "WorldGenerator.h"
 #include "MeshBuilder.h"
 #include <set>
+#include <thread>
 using namespace glm;
 
 struct chunkTask
@@ -19,23 +20,29 @@ class ChunkHolder
 {
 public:
 	ivec3 update(vec3 loaderPos);
-	ChunkHolder(const unsigned loadCubeSide, vec3 loaderPos, Vertexpool* pool);
+	ChunkHolder(const uint32_t loadSide, vec3 loaderPos, Vertexpool* pool);
+	ChunkHolder(const ivec3 loadSide, vec3 loaderPos, Vertexpool* pool);
 	ivec3 getChunkOffset();
 
-	const unsigned loadCubeSide;
-	const unsigned loadCubeArea;
-	const unsigned loadCubeVolume;
+	void finish();
+
+	static void handleChunks(ChunkHolder* holder);
+
+	const ivec3 loadSide;
+	const uint32_t loadAreaZ = loadSide.x*loadSide.y, loadAreaY = loadSide.x * loadSide.z;
+	const uint32_t loadVolume = loadSide.y*loadAreaY;
 private:
+	bool workFinished;
+	set<Chunk*> toUpdate;
+	vector<Chunk*> toRebuild;
 	Vertexpool* vertexpool;
 	ivec3 chunkOffset;
 	RingBuffer3<Chunk*> chunkRing;
 	set<chunkTask> chunkTasks;
-	Chunk** prepareChunkArray();
 	unsigned nextChunkID;
 	Chunk* loadChunk(ivec3 pos);
-	void replaceChunk(ivec3 pos);
-	void integrateChunk(ivec3 pos);
-	void integrateChunk(Chunk* chunk);
+	void refillChunk(Chunk* chunk);
+	void rebuildChunk(Chunk* chunk);
 	void unloadChunk(Chunk* chunk);
 	unsigned chunkIndex(ivec3 chunkPos);
 
