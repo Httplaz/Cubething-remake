@@ -42,7 +42,7 @@ void ResourseManager::TextureAtlasProcess::finish()
 		uint32_t pixelSizeC = pixelAtlasSize;
 		uint8_t* dataC;
 		uint8_t* prevDataC = data[i];
-		Texture::saveImage(("aboba" + to_string(i) + " " + to_string(0) + ".png").c_str(), data[i], pixelSizeC, pixelSizeC, 4);
+		//Texture::saveImage(("aboba" + to_string(i) + " " + to_string(0) + ".png").c_str(), data[i], pixelSizeC, pixelSizeC, 4);
 
 		for (int j = 1; j < log(pixelSizeC); j++)
 		{

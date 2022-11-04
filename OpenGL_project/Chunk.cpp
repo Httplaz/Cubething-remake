@@ -11,7 +11,7 @@ uint32_t Chunk::dataIndex(uvec3 pos)
 	return dataIndex(pos.x, pos.y, pos.z);
 }
 
-uint32_t Chunk::dataIndex(uvec3Ref pos)
+uint32_t Chunk::dataIndex(ivec3Ref pos)
 {
 	return dataIndex(*pos.x, *pos.y, *pos.z);
 }

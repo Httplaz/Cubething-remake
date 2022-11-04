@@ -28,8 +28,7 @@ class MeshBuilder
 		int chunkPosX, chunkPosY, chunkPosZ;
 	};
 public:
-	static void buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring);
-	static void rebuildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring);
+	static void buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring, bool restart);
 	static void disableMesh(Vertexpool* vertexpool, Chunk* chunk);
 	static void destroyMesh(Vertexpool* vertexpool, Chunk* chunk);
 	static Vertex* vertexOffset(int x, int y, int z, Vertex* sample, int vertexCount);

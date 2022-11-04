@@ -7,14 +7,20 @@
 using namespace glm;
 
 
-struct uvec3Ref
+struct ivec3Ref
 {
-	uint32_t* x;
-	uint32_t* y;
-	uint32_t* z;
+	int32_t* x;
+	int32_t* y;
+	int32_t* z;
 	ivec3 toIvec3()
 	{
-		return { uint32_t(*x), uint32_t(*y), uint32_t(*z) };
+		return { (*x), (*y), (*z) };
+	}
+	void toIvec3(ivec3& ref)
+	{
+		ref.x = *x;
+		ref.y = *y;
+		ref.z = *z;
 	}
 };
 
@@ -26,7 +32,7 @@ public:
 	static const uint32_t volume = side * side * side;
 	static uint32_t dataIndex(uint32_t x, uint32_t y, uint32_t z);
 	static uint32_t dataIndex(uvec3 pos);
-	static uint32_t dataIndex(uvec3Ref pos);
+	static uint32_t dataIndex(ivec3Ref pos);
 	Chunk(uint32_t id, ivec3 position, ivec3 worldPosition);
 	//~Chunk();
 	uint8_t* getData();

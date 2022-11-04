@@ -57,7 +57,7 @@ Game::Game()
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
-    ivec3 cr = { 10, 2, 10 };
+    ivec3 cr = { 14, 2, 14 };
     uint32_t meshSizeLimit = 30000;
 
     ResourseManager::configure(1024, 10, { {3, "albedo"}, {1, "metallic"}, {3, "normal"},

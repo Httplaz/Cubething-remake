@@ -75,7 +75,7 @@ ChunkHolder::ChunkHolder(const ivec3 loadSide, vec3 loaderPos, Vertexpool* pool)
         for (int y = 0; y < loadSide.y; y++)
             for (int z = 0; z < loadSide.z; z++)
             {
-                MeshBuilder::buildMesh(vertexpool, chunkRing.get({ x,y,z }), chunkRing);
+                MeshBuilder::buildMesh(vertexpool, chunkRing.get({ x,y,z }), chunkRing, false);
                 chunkRing.get({ x,y,z })->properMesh = true;
                 if ((x == 0 || x == loadSide.x - 1) || (z == 0 || z == loadSide.z - 1))
                 {
@@ -128,7 +128,7 @@ void ChunkHolder::refillChunk(Chunk* chunk)
 
 void ChunkHolder::rebuildChunk(Chunk* chunk)
 {
-    MeshBuilder::rebuildMesh(vertexpool, chunk, chunkRing);
+    MeshBuilder::buildMesh(vertexpool, chunk, chunkRing, true);
 }
 
 void ChunkHolder::unloadChunk(Chunk* chunk)

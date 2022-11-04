@@ -26,8 +26,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
-double frameRenderDuration = 1. / 120;
-double frameUpdateDuration = 1. / 120;
+double frameRenderDuration = 1. / 60;
+double frameUpdateDuration = 1. / 60;
 dvec2 cursorPos;
 bool firstMouse = true;
 bool fullScreen = false;
