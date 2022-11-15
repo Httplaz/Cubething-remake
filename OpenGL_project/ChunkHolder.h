@@ -8,6 +8,7 @@
 #include "MeshBuilder.h"
 #include <set>
 #include <thread>
+#include "Threadpool.h"
 using namespace glm;
 
 struct chunkTask
@@ -20,22 +21,28 @@ class ChunkHolder
 {
 public:
 	ivec3 update(vec3 loaderPos);
-	ChunkHolder(const uint32_t loadSide, vec3 loaderPos, Vertexpool* pool);
-	ChunkHolder(const ivec3 loadSide, vec3 loaderPos, Vertexpool* pool);
+	ChunkHolder(const uint32_t loadSide, vec3 loaderPos, Vertexpool<CompactVertex, MeshAttribPack>* pool);
+	ChunkHolder(const ivec3 loadSide, vec3 loaderPos, Vertexpool<CompactVertex, MeshAttribPack>* pool);
+	uint32_t getBlock(ivec3 pos);
 	ivec3 getChunkOffset();
+	void setBlock(ivec3 pos, uint32_t block);
+	ivec3 getSize();
 
 	void finish();
-
-	static void handleChunks(ChunkHolder* holder);
 
 	const ivec3 loadSide;
 	const uint32_t loadAreaZ = loadSide.x*loadSide.y, loadAreaY = loadSide.x * loadSide.z;
 	const uint32_t loadVolume = loadSide.y*loadAreaY;
-private:
+//private:
+	struct updaterArgs
+	{
+		Vertexpool<CompactVertex, MeshAttribPack>* vertexpool;
+		ChunkHolder* holder;
+		Chunk* chunk;
+	};
+	Threadpool<1, updaterArgs> threadpool;
 	bool workFinished;
-	set<Chunk*> toUpdate;
-	vector<Chunk*> toRebuild;
-	Vertexpool* vertexpool;
+	Vertexpool<CompactVertex, MeshAttribPack>* vertexpool;
 	ivec3 chunkOffset;
 	RingBuffer3<Chunk*> chunkRing;
 	set<chunkTask> chunkTasks;

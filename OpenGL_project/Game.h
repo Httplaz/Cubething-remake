@@ -12,6 +12,8 @@
 #include "MeshBuilder.h"
 #include "ChunkHolder.h"
 #include "ResourseManager.h"
+#include "ModelRenderer.h"
+#include "WorldInteraction.h"
 
 using namespace std;
 using namespace glm;
@@ -30,18 +32,13 @@ public:
 	void terminate();
 private:
 	Shader shader;
-	Texture albedo;
-	Texture normal;
-	Texture metallic;
-	Texture roughness;
-	Texture ambientOccluison;
-	Texture depth;
 	Camera camera;
-	Vertexpool* vertexpool;
+	Vertexpool<CompactVertex, MeshAttribPack>* vertexpool;
 	ChunkHolder* chunkholder;
 	Skybox skybox;
 	mat4 model;
 	int gameTime;
+	ModelRenderer<vec3, vec3>* modelRenderer;
 
 	vec3 movementInput;
 	vec2 rotationInput;

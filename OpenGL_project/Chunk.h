@@ -37,6 +37,7 @@ public:
 	//~Chunk();
 	uint8_t* getData();
 	uint8_t getBlock(ivec3 pos);
+	void setBlock(ivec3 pos, uint8_t block);
 	uint32_t getMeshID();
 	ivec3 getPosition();
 	ivec3 getWorldPosition();

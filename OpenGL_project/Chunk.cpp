@@ -38,6 +38,11 @@ uint8_t Chunk::getBlock(ivec3 pos)
 	return data[dataIndex(pos)];
 }
 
+void Chunk::setBlock(ivec3 pos, uint8_t block)
+{
+	data[dataIndex(pos)] = block;
+}
+
 uint32_t Chunk::getMeshID()
 {
 	return meshID;

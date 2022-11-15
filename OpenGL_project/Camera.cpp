@@ -36,10 +36,14 @@ float Camera::getAspectRatio()
 {
 	return aspectRatio;
 }
-
 float Camera::getViewAngleDeg()
 {
 	return viewAngleDeg;
+}
+
+vec3 Camera::getDirection()
+{
+	return vec3(vec4(0, 0, 1, 0) * scale(rotation, vec3(-1,-1,1)));
 }
 
 mat4 Camera::getRotation()

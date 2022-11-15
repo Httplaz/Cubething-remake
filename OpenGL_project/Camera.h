@@ -16,6 +16,7 @@ public:
 	vec3 getPosition();
 	float getAspectRatio();
 	float getViewAngleDeg();
+	vec3 getDirection();
 	mat4 getRotation();
 	void setAspectRatio(float ratio);
 	void setViewAngleDeg(float angleDeg);

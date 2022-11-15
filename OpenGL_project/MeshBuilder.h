@@ -4,6 +4,18 @@
 #include "BoxList.h"
 #include "RingBuffer3.h"
 #include <glm/gtx/rotate_vector.hpp>
+
+struct CompactVertex
+{
+	uint32_t rectData;
+	uint32_t texID;
+	uint32_t infoAdv;
+};
+struct MeshAttribPack
+{
+	int side;
+	int chunkPosX, chunkPosY, chunkPosZ;
+};
 class MeshBuilder
 {
 	struct Vertex
@@ -16,21 +28,11 @@ class MeshBuilder
 		//int posX2, posY2, posZ2;
 		//int posX3, posY3, posZ3;
 	};
-	struct CompactVertex
-	{
-		uint32_t rectData;
-		uint32_t texID;
-		uint32_t infoAdv;
-	};
-	struct MeshAttribPack
-	{
-		int side;
-		int chunkPosX, chunkPosY, chunkPosZ;
-	};
 public:
-	static void buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring, bool restart);
-	static void disableMesh(Vertexpool* vertexpool, Chunk* chunk);
-	static void destroyMesh(Vertexpool* vertexpool, Chunk* chunk);
+	static void buildMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring, bool restart);
+	static void disableMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk);
+	static void enableMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk);
+	static void destroyMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk);
 	static Vertex* vertexOffset(int x, int y, int z, Vertex* sample, int vertexCount);
 private:
 	static mat3 rightRotationMatrix(ivec3 axis);

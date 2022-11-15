@@ -161,22 +161,29 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkHolder.cpp" />
+    <ClCompile Include="DequeSet.cpp" />
+    <ClCompile Include="DrawUtility.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="BoxList.cpp" />
     <ClCompile Include="MeshBuilder.cpp" />
     <ClCompile Include="OpenGL_project.cpp" />
+    <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ResourseManager.cpp" />
     <ClCompile Include="RingBuffer3.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Threadpool.cpp" />
     <ClCompile Include="Vertexpool.cpp" />
     <ClCompile Include="WorldGenerator.cpp" />
+    <ClCompile Include="WorldInteraction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="blankShaderFrag.glsl" />
     <None Include="defaultShaderVert.glsl" />
+    <None Include="outlineShaderFrag.glsl" />
+    <None Include="outlineShaderVert.glsl" />
     <None Include="pbrShaderFrag.glsl" />
     <None Include="pbrShaderGeom.glsl" />
     <None Include="pbrShaderVert.glsl" />
@@ -188,9 +195,12 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkHolder.h" />
+    <ClInclude Include="DequeSet.h" />
+    <ClInclude Include="DrawUtility.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="BoxList.h" />
     <ClInclude Include="MeshBuilder.h" />
+    <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="ResourseManager.h" />
     <ClInclude Include="RingBuffer3.h" />
@@ -200,8 +210,10 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Threadpool.h" />
     <ClInclude Include="Vertexpool.h" />
     <ClInclude Include="WorldGenerator.h" />
+    <ClInclude Include="WorldInteraction.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="skyboxShaderFrag.glsl" />

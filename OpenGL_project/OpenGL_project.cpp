@@ -26,8 +26,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
-double frameRenderDuration = 1. / 60;
-double frameUpdateDuration = 1. / 60;
+double frameRenderDuration = 1. / 120;
+double frameUpdateDuration = 1. / 120;
 dvec2 cursorPos;
 bool firstMouse = true;
 bool fullScreen = false;
@@ -91,15 +91,6 @@ void render()
             tp++;
             string displayString = "FPS: " + to_string(1. / frameRenderTime);
             glfwSetWindowTitle(window, displayString.c_str());
-           
-
-            dvec2 a;
-            glfwGetCursorPos(window, &(a.x), &a.y);
-            if (!firstMouse)
-                game->setRotationInput((dvec2(a.x - cursorPos.x, cursorPos.y - a.y)) / 10.);
-            cursorPos = a;
-            firstMouse = false;
-            game->update();
 
 
 
@@ -148,8 +139,8 @@ int main()
     //glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::cout << "Hello World!\n";
-    //thread thr(update);
-    //thr.detach();
+    thread thr(update);
+    thr.detach();
     render();
 
     glfwTerminate();

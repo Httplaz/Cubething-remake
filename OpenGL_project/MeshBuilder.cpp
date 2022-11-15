@@ -77,7 +77,6 @@ ivec3 normal[6] = { ivec3(1,0,0), ivec3(0,1,0), ivec3(0,0,1), ivec3(-1,0,0), ive
 ivec3 tangent[6] = { ivec3(0,0,1), ivec3(1,0,0), ivec3(-1,0,0), ivec3(0,0,-1), ivec3(1,0,0), ivec3(1,0,0) };
 ivec3 bitangent[6] = { ivec3(0,1,0), ivec3(0,0,1), ivec3(0,1,0), ivec3(0,1,0), ivec3(0,0,-1), ivec3(0,1,0) };
 
-int32_t layerInfo[Chunk::side+2][Chunk::side+2];
 //uint32_t layerInfoAdv[Chunk::area];
 //int32_t prevLayerInfo[Chunk::area];
 ivec3 up[6] =
@@ -171,8 +170,9 @@ Chunk* neighbors[3][3][3];
 
 ivec3 posCashe;
 
-void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring, bool restart)
+void MeshBuilder::buildMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk, RingBuffer3<Chunk*> ring, bool restart)
 {
+    int32_t layerInfo[Chunk::side + 2][Chunk::side + 2];
     for (int x=0; x<3; x++)
         for (int y=0; y<3; y++)
             for (int z = 0; z < 3; z++)
@@ -185,19 +185,21 @@ void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Ch
     ivec3 ringPos = chunk->getPosition();
     ivec3 offset = chunk->getPosition() * int(chunk->side);
     int gg = chunk->getMeshID();
-    MeshAttribPack* attrib;
+    MeshAttribPack attrib;
     for (int i = 0; i < 6; i++)
     {
-        attrib = new MeshAttribPack({ i, offset.x, offset.y, offset.z });
+        attrib = { i, offset.x, offset.y, offset.z };
         if(!restart)
             vertexpool->startPortionMeshing(chunk->getMeshID() * 6 + i);
         else
             vertexpool->restartPortionMeshing(chunk->getMeshID() * 6 + i);
-        vertexpool->placeAttribs(chunk->getMeshID() * 6 + i, attrib, sizeof(MeshAttribPack));
-        delete attrib;
+        vertexpool->placeAttribs(chunk->getMeshID() * 6 + i, attrib);
     }
+    std::vector<CompactVertex> cm(32768);
     for (int s = 0; s < 6; s++)
     {
+        cm.clear();
+        uint32_t meshingOffset = 0;
         int32_t x = 0, z = 0, height = Chunk::side - 1;
         ivec3Ref nextChunkPositions[6] =
         {
@@ -338,7 +340,9 @@ void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Ch
                             uint32_t info = testV0.posX + (testV0.posY << 6) + (testV0.posZ << 12) +
                                 ((s%3==0? dy:dx) << 18) + ((s % 3 == 0 ? dx : dy) << 24);
                             CompactVertex cv = { info, testV0.texID, testV0.infoAdv };
-                            vertexpool->placeData(chunk->getMeshID() * 6 + s, &cv, sizeof(CompactVertex));
+                            cm[meshingOffset / sizeof(CompactVertex)] = cv;
+                            //vertexpool->placeVertex(chunk->getMeshID() * 6 + s, meshingOffset, cv);
+                            meshingOffset += sizeof(CompactVertex);
                         }
                         if (borders.x < Chunk::side)
                             startingVertices.push_back({ borders.x, start.y });
@@ -349,17 +353,15 @@ void MeshBuilder::buildMesh(Vertexpool* vertexpool, Chunk* chunk, RingBuffer3<Ch
 
             }
         }
+        //cm.resize(meshingOffset/sizeof(CompactVertex));
+        //cout << cm.size() << "\n";
+        vertexpool->placeVertices(chunk->getMeshID() * 6 + s, 0, cm, meshingOffset / sizeof(CompactVertex));
     }
     //cout << "MESH EDNEDED\n";
-
-    for (int i = 0; i < 6; i++) 
-    {
-        vertexpool->endPortionMeshing(chunk->getMeshID() * 6 + i);
-    }
     //cout << "portion meshing ended\n";
 }
 
-void MeshBuilder::disableMesh(Vertexpool* vertexpool, Chunk* chunk)
+void MeshBuilder::disableMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -367,7 +369,15 @@ void MeshBuilder::disableMesh(Vertexpool* vertexpool, Chunk* chunk)
     }
 }
 
-void MeshBuilder::destroyMesh(Vertexpool* vertexpool, Chunk* chunk)
+void MeshBuilder::enableMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk)
+{
+    for (int i = 0; i < 6; i++)
+    {
+        vertexpool->enableMesh(chunk->getMeshID() * 6 + i);
+    }
+}
+
+void MeshBuilder::destroyMesh(Vertexpool<CompactVertex, MeshAttribPack>* vertexpool, Chunk* chunk)
 {
     //cout << "unloading\n";
     vertexpool->unmeshPortion(chunk->getMeshID() * 6);
