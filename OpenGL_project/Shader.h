@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <vector>
 #include <glad/glad.h>
 
 class Shader
@@ -26,6 +26,8 @@ public:
     void setVec3(glm::vec3 v, std::string name);
     void setIvec3(glm::ivec3 v, std::string name);
     void setIvec4(glm::ivec4 v, std::string name);
-    void setInt(GLuint i, std::string name);
-    void setFloat(GLuint i, std::string name);
+    void setInt(int i, std::string name);
+    void setFloat(float i, std::string name);
+    void setFloatArray(std::vector<float> arr, std::string name);
+    void setIntArray(std::vector<int>& arr, std::string name);
 };

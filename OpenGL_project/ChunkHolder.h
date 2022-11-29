@@ -25,6 +25,7 @@ public:
 	ChunkHolder(const ivec3 loadSide, vec3 loaderPos, Vertexpool<CompactVertex, MeshAttribPack>* pool);
 	uint32_t getBlock(ivec3 pos);
 	ivec3 getChunkOffset();
+	ivec3 getWorldOffset();
 	void setBlock(ivec3 pos, uint32_t block);
 	ivec3 getSize();
 

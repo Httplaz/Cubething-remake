@@ -67,21 +67,24 @@ Texture::Texture(const GLchar* path, bool linear)
     stbi_image_free(imgData);
 }
 
-uint8_t* Texture::loadImage(std::string path)
+uint8_t* Texture::loadImage(std::string path, uint32_t channels)
 {
     unsigned char* imgData;
     int width, height, nrChannels;
-    imgData = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+    imgData = stbi_load(path.c_str(), &width, &height, &nrChannels, channels);
     if(!imgData)
-        imgData = stbi_load((path+".png").c_str(), &width, &height, &nrChannels, 0);
+        imgData = stbi_load((path+".png").c_str(), &width, &height, &nrChannels, channels);
     if (!imgData)
-        imgData = stbi_load((path + ".jpg").c_str(), &width, &height, &nrChannels, 0);
-    if (!imgData)
+        imgData = stbi_load((path + ".jpg").c_str(), &width, &height, &nrChannels, channels);
+    if (!imgData) 
+    {
+        std::cout << "image load failed\n";
         return nullptr;
-    //std::cout << path << " " << width << " " << height << " " << nrChannels << "\n";
+    }
+    std::cout << path << " " << width << " " << height << " " << nrChannels << "\n";
     uint8_t* data = new uint8_t[width * height * nrChannels];
     //std::cout << path << " " << nrChannels << "\n";
-    memcpy(data, imgData, width * height * nrChannels*sizeof(uint8_t));
+    memcpy(data, imgData, width * height * channels * sizeof(uint8_t));
     stbi_image_free(imgData);
     return data;
 }

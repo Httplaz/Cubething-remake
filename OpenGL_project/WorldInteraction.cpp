@@ -1,6 +1,6 @@
 #include "WorldInteraction.h"
 
-glm::ivec3 WorldInteraction::raycast(glm::vec3 pos, glm::vec3 dir, ChunkHolder& holder)
+glm::ivec4 WorldInteraction::raycast(glm::vec3 pos, glm::vec3 dir, ChunkHolder& holder)
 {
     vec3 border1 = holder.getSize();
 
@@ -12,10 +12,22 @@ glm::ivec3 WorldInteraction::raycast(glm::vec3 pos, glm::vec3 dir, ChunkHolder& 
         float m = std::min(prior.x, std::min(prior.y, prior.z));
         pos += dir * m;
         vec3 cube = floor(pos);
-        uint32_t c = holder.getBlock(cube);
-        if (c > 0)
-            return cube;
+        if (pos.y >= 0 && pos.y <= border1.y) 
+        {
+            uint32_t c = holder.getBlock(cube);
+            if (c > 0)
+            {
+                int side = -1;
+                if (m == prior.x)
+                    side = 0 + (sdir.x > 0 ? 3 : 0);
+                if (m == prior.y)
+                    side = 1 + (sdir.y > 0 ? 3 : 0);
+                if (m == prior.z)
+                    side = 2 + (sdir.z > 0 ? 3 : 0);
+                return ivec4(cube, side);
+            }
+        }
     }
-    return glm::ivec3(-1);
+    return glm::ivec4(-1);
 
 }

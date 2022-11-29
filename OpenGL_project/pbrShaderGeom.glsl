@@ -17,6 +17,7 @@ in int blockAO1[];
 
 
 uniform mat4 transform;
+uniform bool[6] activeSides;
 
 out vec2 TexCoords;
 out vec3 WorldPos;
@@ -52,7 +53,13 @@ void copyVertex(ivec3 position, ivec3 local)
 }
 
 void main() 
-{    
+{   
+
+   if(!activeSides[side[0]])
+   {
+       EndPrimitive();
+       return;
+   }
    TBN = mat3(tangent[side[0]], bitangent[side[0]], normal[side[0]]);
    ivec3 deltaRight = tangent[side[0]] * Length[0].x;
    ivec3 deltaUp = bitangent[side[0]] * Length[0].y;

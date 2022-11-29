@@ -14,6 +14,7 @@ out int blockAO1;
 
 uniform ivec3 loadOffset;
 uniform ivec3 loadSide; 
+uniform ivec3 worldOffset;
 void main()
 {
     texID1 = int(texID0);
@@ -25,6 +26,6 @@ void main()
     pos = ivec3((info0) & ((1<<6) -1), (info0>>6) & ((1<<6) -1), (info0>>12) & ((1<<6) -1));
     Length = ivec2((info0 >> 18) & ((1<<6) -1), (info0 >> 24) & ((1<<6) -1));
 
-    WorldPos0 = ivec3(vec4(pos+(ivec3(chunkPos/32+loadOffset+loadSide)%loadSide)*32, 1.0));
+    WorldPos0 = ivec3(vec4(pos+(ivec3(chunkPos/32+loadOffset+loadSide)%loadSide)*32, 1.0)) + worldOffset;
     gl_Position = vec4(WorldPos0, 1.0);
 }

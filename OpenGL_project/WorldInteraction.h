@@ -6,7 +6,7 @@ using namespace glm;
 class WorldInteraction
 {
 public:
-	static glm::ivec3 raycast(glm::vec3 pos, glm::vec3 dir, ChunkHolder& holder);
+	static glm::ivec4 raycast(glm::vec3 pos, glm::vec3 dir, ChunkHolder& holder);
 private:
 };
 

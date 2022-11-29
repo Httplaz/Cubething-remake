@@ -29,6 +29,7 @@ public:
 	void setRotationInput(vec2 input);
 	void addMovementInput(vec3 input);
 	void addRotationInput(vec2 input);
+	void addMouseButtonInput(ivec2 input);
 	void terminate();
 private:
 	Shader shader;
@@ -42,6 +43,7 @@ private:
 
 	vec3 movementInput;
 	vec2 rotationInput;
+	ivec2 mouseButtonInput;
 
 };
 

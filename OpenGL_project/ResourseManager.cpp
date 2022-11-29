@@ -44,7 +44,7 @@ void ResourseManager::TextureAtlasProcess::finish()
 		uint8_t* prevDataC = data[i];
 		//Texture::saveImage(("aboba" + to_string(i) + " " + to_string(0) + ".png").c_str(), data[i], pixelSizeC, pixelSizeC, 4);
 
-		for (int j = 1; j < log(pixelSizeC); j++)
+		/*for (int j = 1; j < log(pixelSizeC); j++)
 		{
 			pixelSizeC /= 2;
 			dataC = new uint8_t[pixelSizeC * pixelSizeC * 4];
@@ -56,7 +56,7 @@ void ResourseManager::TextureAtlasProcess::finish()
 			//glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA, pixelSizeC, pixelSizeC, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataC);
 			//Texture::saveImage(("aboba" + to_string(i) + " " + to_string(j) + ".png").c_str(), dataC, pixelSizeC, pixelSizeC, 4);
 
-		}
+		}*/
 
 		ResourseManager::atlases.push_back(glTextures[i]);
 		//Texture::saveImage(("aboba" + to_string(i) + ".png").c_str(), data[i], pixelAtlasSize, pixelAtlasSize, 4);
@@ -149,7 +149,7 @@ void ResourseManager::loadTile(string path)
 	}
 	uint32_t channelOffset = 0;
 	for (int i = 0; i < layerInfo.size(); i++)
-		atlasProcess->addTile(Texture::loadImage(path + layerInfo[i].second), channelOffset, layerInfo[i].first), channelOffset += layerInfo[i].first;
+		atlasProcess->addTile(Texture::loadImage(path + layerInfo[i].second, layerInfo[i].first), channelOffset, layerInfo[i].first), channelOffset += layerInfo[i].first;
 }
 
 void ResourseManager::loadBlock(const string path, const uint8_t sides)

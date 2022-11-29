@@ -63,13 +63,13 @@ inline void Threadpool<threadCount, Args>::quit()
 template<unsigned threadCount, typename Args>
 inline void Threadpool<threadCount, Args>::update()
 {
-	//if (!workLocked)
+	if (!workLocked && tasks.empty())
 	{
-		//workLocked = true;
-		//poolMutex.lock();
+		workLocked = true;
+		poolMutex.lock();
 	}
-	//if (!tasks.empty())
-		//poolMutex.unlock(), workLocked = false;
+	if (!tasks.empty() && workLocked)
+		poolMutex.unlock(), workLocked = false;
 
 }
 

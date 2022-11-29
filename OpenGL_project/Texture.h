@@ -17,6 +17,6 @@ public:
     Texture();
     static void saveImage(const char* name, uint8_t* data, int width, int height, int channels);
     Texture(const GLchar* path, bool linear);
-    static uint8_t* loadImage(std::string path);
+    static uint8_t* loadImage(std::string path, uint32_t channels);
     GLuint getTexture();
 };

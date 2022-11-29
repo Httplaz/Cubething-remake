@@ -2,7 +2,7 @@
 
 ivec3 ChunkHolder::update(vec3 loaderPos)
 {
-    threadpool.update();
+    //threadpool.update();
     //toUpdate.insert(chunkRing.get({ 7,0,7 }));
     ivec3 delta1 = ((loadSide-1) * Chunk::side / 2 - (ivec3)loaderPos) / int32_t(Chunk::side);
     delta1.y = 0;
@@ -56,7 +56,8 @@ ivec3 ChunkHolder::update(vec3 loaderPos)
 
                 
     }
-    return ivec3(delta2 * int32_t(Chunk::side));
+    return ivec3(0);
+    //return ivec3(delta2 * int32_t(Chunk::side));
 }
 
 ChunkHolder::ChunkHolder(const uint32_t loadSide, vec3 loaderPos, Vertexpool<CompactVertex, MeshAttribPack>* pool) : ChunkHolder({ loadSide, loadSide, loadSide }, loaderPos, pool)
@@ -128,6 +129,11 @@ ivec3 ChunkHolder::getChunkOffset()
     return chunkRing.getOffset();
 }
 
+ivec3 ChunkHolder::getWorldOffset()
+{
+    return chunkOffset * Chunk::side;
+}
+
 void ChunkHolder::setBlock(ivec3 pos, uint32_t block)
 {
     ivec3 delta = ivec3(0);
@@ -148,6 +154,34 @@ void ChunkHolder::setBlock(ivec3 pos, uint32_t block)
     chunkRing.get(delta)->setBlock(pos, block);
     //rebuildChunk(chunkRing.get({ 7,7,7 }));
     threadpool.addTask({ vertexpool, this, chunkRing.get(delta)});
+    bool flags[8] =
+    {
+        pos.x == Chunk::side-1,
+        pos.x == Chunk::side-1 && pos.z==0,
+        pos.z == 0,
+        pos.x == 0 && pos.z == 0,
+        pos.x == 0,
+        pos.x == 0 &&  pos.z == Chunk::side-1,
+        pos.z == Chunk::side - 1,
+        pos.x == Chunk::side - 1 && pos.z == Chunk::side - 1
+    };
+
+    if(flags[0])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(1, 0, 0)) });
+    if (flags[1])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(1, 0, -1)) });
+    if (flags[2])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(0, 0, -1)) });
+    if (flags[3])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(-1, 0, -1)) });
+    if (flags[4])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(-1, 0, 0)) });
+    if (flags[5])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(-1, 0, 1)) });
+    if (flags[6])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(0, 0, 1)) });
+    if (flags[7])
+        threadpool.addTask({ vertexpool, this, chunkRing.get(delta + ivec3(1, 0, 1)) });
 }
 
 ivec3 ChunkHolder::getSize()

@@ -50,6 +50,8 @@ float vertices[] =
 
 Shader modelShader;
 
+int32_t blockCoolDown = 0;
+
 Game::Game()
 {
     shader = Shader("pbrShaderVert.glsl", "pbrShaderGeom.glsl", "pbrShaderFrag.glsl");
@@ -59,20 +61,20 @@ Game::Game()
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     ivec3 cr = { 14, 2, 14 };
     uint32_t meshSizeLimit = 32768;
 
     ResourseManager::configure(1024, 10, { {3, "albedo"}, {1, "metallic"}, {3, "normal"},
         {1, "roughness"}, {1, "height"}, {1, "AO"} });
+    ResourseManager::loadTile("textures/stone");
+    ResourseManager::atlasProcess->finishTile();
+    ResourseManager::loadTile("textures/grass");
+    ResourseManager::atlasProcess->finishTile();
     ResourseManager::loadTile("textures/brick");
     ResourseManager::atlasProcess->finishTile();
-    ResourseManager::loadTile("textures/blueBrick");
-    ResourseManager::atlasProcess->finishTile();
-    ResourseManager::loadTile("textures/wood");
-    ResourseManager::atlasProcess->finishTile();
-    ResourseManager::loadTile("textures/orangeBrick");
+    ResourseManager::loadTile("textures/gold");
     ResourseManager::atlasProcess->finishTile();
     cout << "befor load finish\n";
     ResourseManager::finishLoading();
@@ -134,7 +136,15 @@ void Game::render()
     shader.setMat4(camera.getProjection()*camera.getView() * scale(mat4(1.f), vec3(-1, -1, 1)), "transform");
     shader.setVec3(camera.getPosition(), "camPos");
     shader.setIvec3(chunkholder->getChunkOffset(), "loadOffset");
+    shader.setIvec3(chunkholder->getWorldOffset(), "worldOffset");
     shader.setIvec3(chunkholder->loadSide, "loadSide");
+    ivec3 normal[6] = { ivec3(1,0,0), ivec3(0,1,0), ivec3(0,0,1), ivec3(-1,0,0), ivec3(0,-1,0), ivec3(0,0,-1) };
+    vector<int> vb(6);
+    for (int i = 0; i < 6; i++)
+        //cout << glm::angle(camera.getDirection(), vec3(normal[i])) << " ";
+        vb[i] = (glm::angle(camera.getDirection(), vec3(normal[i]))>radians(60.f));
+
+    shader.setIntArray(vb, "activeSides");
     shader.setInt(1, "p");
     shader.setFloat((float)ResourseManager::pixelAtlasSize/(float)ResourseManager::tileSize, "tileAtlasSize");
     shader.setInt(0, "albedoMetallicMap");
@@ -160,7 +170,27 @@ void Game::render()
 
 void Game::update()
 {
-    camera.translateAbs(chunkholder->update(camera.getPosition()));
+    ivec3 normal[6] = { ivec3(1,0,0), ivec3(0,1,0), ivec3(0,0,1), ivec3(-1,0,0), ivec3(0,-1,0), ivec3(0,0,-1) };
+    ivec4 cube = WorldInteraction::raycast(camera.getPosition()-vec3(chunkholder->getWorldOffset()), camera.getDirection(), *chunkholder);
+    vec3 a(vec3(cube)+vec3(chunkholder->getWorldOffset()));
+    vec3 t(277, 0, 224);
+    blockCoolDown--;
+    //cout << mouseButtonInput.x << " " << mouseButtonInput.y << "\n";
+    if (blockCoolDown <= 0)
+        if (cube.x >= 0)
+        {
+            //cout << cube.x << " " << cube.y << " " << cube.z << "\n";
+                           //for(int i=0; i<32; i++)
+            //chunkholder->setBlock(camera.getPosition(), 2);
+            if (mouseButtonInput.y == 1)
+                chunkholder->setBlock(ivec3(cube) + normal[cube.w], 4);
+            if (mouseButtonInput.x == 1)
+                chunkholder->setBlock(ivec3(cube), 0);
+            blockCoolDown = 1;
+        }
+
+    camera.translateAbs(chunkholder->update(camera.getPosition() - glm::vec3(chunkholder->getWorldOffset())));
+    modelRenderer->setInstanceAttribute(0, 0, a);
     vec3 normales[6] =
     {
         vec3(1, 0, 0),
@@ -174,16 +204,8 @@ void Game::update()
         camera.rotateRel(rotationInput.y, vec3(1.f, 0.f, 0.f));
     if(rotationInput.x!=0)
        camera.rotateAbs(rotationInput.x, vec3(0.f, 1.f, 0.f)); 
-    if (movementInput.length > 0)
+    if (movementInput.length() > 0)
         camera.translateRel(movementInput*2.f);
-    vec3 cube = WorldInteraction::raycast(camera.getPosition(), camera.getDirection(), *chunkholder);
-    modelRenderer->setInstanceAttribute(0, 0, cube);
-    if (cube.x >= 0)
-    {
-        //for(int i=0; i<32; i++)
-        //chunkholder->setBlock(camera.getPosition(), 2);
-        //chunkholder->setBlock(cube+vec3(0,1,0), 3);
-    }
 }
 
 void Game::updateAspectRatio(float ratio)
@@ -209,6 +231,11 @@ void Game::addMovementInput(vec3 input)
 void Game::addRotationInput(vec2 input)
 {
     rotationInput += input;
+}
+
+void Game::addMouseButtonInput(ivec2 input)
+{
+    mouseButtonInput += input;
 }
 
 void Game::terminate()

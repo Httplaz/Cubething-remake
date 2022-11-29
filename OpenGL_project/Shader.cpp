@@ -150,14 +150,26 @@ void Shader::setIvec4(glm::ivec4 v, std::string name)
     glProgramUniform4i(program, loc, v.x, v.y, v.z, v.w);
 }
 
-void Shader::setInt(GLuint i, std::string name)
+void Shader::setInt(int i, std::string name)
 {
     int loc = getUniformLocation(name.c_str());
     glProgramUniform1i(program, loc, i);
 }
 
-void Shader::setFloat(GLuint i, std::string name)
+void Shader::setFloat(float i, std::string name)
 {
     int loc = getUniformLocation(name.c_str());
     glProgramUniform1f(program, loc, i);
+}
+
+void Shader::setFloatArray(std::vector<float> arr, std::string name)
+{
+    int loc = getUniformLocation(name.c_str());
+    glProgramUniform1fv(program, loc, arr.size(), arr.data());
+}
+
+void Shader::setIntArray(std::vector<int>& arr, std::string name)
+{
+    int loc = getUniformLocation(name.c_str());
+    glProgramUniform1iv(program, loc, arr.size(), arr.data());
 }

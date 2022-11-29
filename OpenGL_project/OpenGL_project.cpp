@@ -26,8 +26,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
-double frameRenderDuration = 1. / 120;
-double frameUpdateDuration = 1. / 120;
+double targetFrameDuration = 1000. / 60;
+double frameUpdateDuration = 1. / 60;
 dvec2 cursorPos;
 bool firstMouse = true;
 bool fullScreen = false;
@@ -51,12 +51,62 @@ glm::ivec2 getResolution()
 
 void update()
 {
-    int bias = 10;
+}
+
+
+
+double frameA;
+double frameB;
+double frameDuration;
+double freeTime;
+
+std::chrono::time_point<std::chrono::high_resolution_clock> frameAX;
+std::chrono::time_point<std::chrono::high_resolution_clock> frameBX;
+std::chrono::duration<double, std::milli> frameDurationX;
+
+
+void render()
+{
+    frameDuration = 0;
+    //frameA = glfwGetTime();
+    frameAX = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window))
     {
-        double currentUpdateTime = glfwGetTime();
-        double frameUpdateTime = currentUpdateTime - latestFrameUpdateTime;
-        if (frameUpdateTime >= frameUpdateDuration)
+        if(frameDuration>targetFrameDuration)
+        {
+
+            dvec2 a;
+            glfwGetCursorPos(window, &(a.x), &a.y);
+            if (!firstMouse)
+                game->setRotationInput((dvec2(a.x - cursorPos.x, cursorPos.y - a.y)) / 10.);
+            cursorPos = a;
+            firstMouse = false;
+            game->update();
+            game->render();
+            glfwPollEvents();
+            glfwSwapBuffers(window);
+            string displayString = "FPS: " + to_string(1000. / frameDuration);
+            glfwSetWindowTitle(window, displayString.c_str());
+
+
+            frameDuration = 0;
+            frameAX = frameAX = std::chrono::high_resolution_clock::now();
+        }
+        frameBX = std::chrono::high_resolution_clock::now();
+        //frameDuration = frameB - frameA;
+        frameDuration = std::chrono::duration<double, std::milli>(frameBX - frameAX).count();
+    }
+
+}
+
+
+/*void render()
+{
+    frameDuration = 0;
+    //frameA = glfwGetTime();
+    frameAX = std::chrono::high_resolution_clock::now();
+    while (!glfwWindowShouldClose(window))
+    {
         {
             dvec2 a;
             glfwGetCursorPos(window, &(a.x), &a.y);
@@ -65,41 +115,29 @@ void update()
             cursorPos = a;
             firstMouse = false;
             game->update();
-            latestFrameUpdateTime = currentUpdateTime;
-            //string displayString = "FPS: " + to_string(1. / frameUpdateTime);
-            //glfwSetWindowTitle(window, displayString.c_str());
-        }
-        else
-            this_thread::sleep_for(chrono::milliseconds(int((frameUpdateDuration - frameUpdateTime-bias) * 1000.)));
-    }
-}
-
-void render()
-{
-    int bias = 10;
-    while (!glfwWindowShouldClose(window))
-    {
-        double currentRenderTime = glfwGetTime();
-        double frameRenderTime = currentRenderTime - latestFrameRenderTime;
-        if (frameRenderTime >= frameRenderDuration) 
-        {
-
             game->render();
             glfwPollEvents();
             glfwSwapBuffers(window);
-            latestFrameRenderTime = currentRenderTime;
-            tp++;
-            string displayString = "FPS: " + to_string(1. / frameRenderTime);
+            string displayString = "FPS: " + to_string(1000. / frameDuration);
             glfwSetWindowTitle(window, displayString.c_str());
-
-
-
-           if (frameRenderTime < frameRenderDuration)
-                this_thread::sleep_for(chrono::milliseconds(int((frameRenderDuration-frameRenderTime-bias)*1000.)));
         }
+        //frameB = glfwGetTime();
+        frameBX = std::chrono::high_resolution_clock::now();
+        //frameDuration = frameB - frameA;
+        frameDuration = std::chrono::duration<double, std::milli>(frameBX - frameAX).count();
+        //freeTime = targetFrameDuration - frameDuration;
+        freeTime = targetFrameDuration - frameDuration;
+        //cout << frameDuration << " " << targetFrameDuration << " " << freeTime << "\n";
+        //if (freeTime > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(int(freeTime)));
+        }
+        frameDuration += freeTime;
+        //frameA = glfwGetTime();
+        frameAX = std::chrono::high_resolution_clock::now();
     }
     
-}
+}*/
 
 int main()
 { 
@@ -136,11 +174,11 @@ int main()
     glfwGetCursorPos(window, &(cursorPos.y), &cursorPos.x);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetKeyCallback(window, key_callback);
-    //glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     std::cout << "Hello World!\n";
-    thread thr(update);
-    thr.detach();
+    //thread thr(update);
+    //thr.detach();
     render();
 
     glfwTerminate();
@@ -240,4 +278,17 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     //cursorPos.x = xpos;
     //cursorPos.y = ypos;
     //game->setRotationInput(vec2(xoffset, yoffset));
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+        game->addMouseButtonInput({ 0, 1 });
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+        game->addMouseButtonInput({ 1, 0 });
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
+        game->addMouseButtonInput({ 0, -1 });
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+        game->addMouseButtonInput({ -1, 0 });
 }

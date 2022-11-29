@@ -42,8 +42,8 @@ float ndotv;
 const float parallaxPower = .04;
 
 // источники света
-vec3 lightPositions[3] = {camPos, WorldPos+normalize(vec3(5., 1., 1.)), WorldPos+normalize(vec3(-4., 2., -2.)) };
-vec3 lightColors[3] = {vec3(0.,.0,0.), vec3(1.,1.,0.9), vec3 (1., 1., 0.9)};
+vec3 lightPositions[2] = {WorldPos+normalize(vec3(0., 1., 0.)), WorldPos+normalize(vec3(-4., 2., -2.)) };
+vec3 lightColors[2] = {vec3(1.,1.,0.9), vec3 (1., 1., 0.9)};
 const float PI = 3.14159265359;
   
 
@@ -204,7 +204,7 @@ void main()
     metallic = ntexture(albedoMetallicMap, texCoords/tileAtlasSize).a;
     roughness = ntexture(normalRoughnessMap, texCoords/tileAtlasSize).a;
     ao = ntexture(heightAmbientOcclusionMap, texCoords/tileAtlasSize).g;
-    //metallic = 0.;
+    //metallic = 1.;
     Normal = (ntexture(normalRoughnessMap, texCoords/tileAtlasSize).xyz-vec3(0.5))*2.*TBN;
     vec2 local = (abs(texCoords)-vec2(.5))*2./sqrt(2.);
     float up = sqrt(1-local.x*local.x-local.y*local.y);
@@ -219,7 +219,7 @@ void main()
     // выражение отражающей способности
     vec3 Lo = vec3(0.0);
     //расчет энергетической
-    for(int i=1; i<3; i++)
+    for(int i=0; i<2; i++)
     {
         vec3 L = normalize(lightPositions[i] - WorldPos);
         vec3 H = normalize(V + L);
@@ -245,7 +245,7 @@ void main()
     //ao = 0.0;
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
-    color*=(1.-blockAO);
+    color*=(1.-blockAO)*(ao);
 	
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
